@@ -3,12 +3,13 @@ import React from "react";
 import Image from "../../node_modules/next/image";
 import Link from "../../node_modules/next/link";
 import SignInButton from "./SignInButton";
+import { ThemeToggle } from "./ThemeToggle";
+import UserAccountNav from "./UserAccountNav";
 
 type Props = {};
 
 const Navbar = async (props: Props) => {
-	// const session = await getAuthSession();
-
+	const session = await getAuthSession();
 	// if (session?.user) {
 	// 	return <pre>{JSON.stringify(session.user, null, 2)}</pre>;
 	// } else {
@@ -31,7 +32,14 @@ const Navbar = async (props: Props) => {
 					</p>
 				</Link>
 				<div className='flex items-center'>
-					<SignInButton text='Sign In'></SignInButton>
+					<ThemeToggle className='mr-3' />
+					<div className='flex items-center'>
+						{session?.user ? (
+							<UserAccountNav user={session.user} />
+						) : (
+							<SignInButton text='Sign In'></SignInButton>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Providers from "@/components/Providers";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -20,8 +21,10 @@ export default function RootLayout({
 		<html lang='en'>
 			{/* SHADCN FUNCTION TO MERGE CLASSNAMES */}
 			<body className={cn(inter.className, "antialiased min-h-screen pt-16")}>
-				<Navbar />
-				{children}
+				<Providers>
+					<Navbar />
+					{children}
+				</Providers>
 			</body>
 		</html>
 	);
