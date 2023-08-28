@@ -2,7 +2,10 @@
 
 import { quizCreationSchema } from "@/schemas/form/quiz";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { BookOpen, CopyCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -31,6 +34,19 @@ type Props = {};
 type Input = z.infer<typeof quizCreationSchema>;
 
 const QuizCreation = (props: Props) => {
+	const router = useRouter();
+
+	// https://tanstack.com/query/v4/docs/react/reference/useMutation
+	const { mutate: getQuestions, isLoading } = useMutation({
+		//THIS IS THE FUNCTION THAT MUTATES THE DATA IN OUR DATABASE
+		mutationFn: async ({ amount, topic, type }: Input) => {
+			//THIS ENDPOINT CREATES THE GAME AND THE QUESTIONS
+			const response = await axios.post("/api/game", { amount, topic, type });
+			//RETURNING THE GAMEID TO REDIRECT
+			return response.data;
+		},
+	});
+
 	const form = useForm<Input>({
 		resolver: zodResolver(quizCreationSchema),
 		defaultValues: {
@@ -39,8 +55,26 @@ const QuizCreation = (props: Props) => {
 			type: "open_ended",
 		},
 	});
+
 	const onSubmit = (input: Input) => {
-		console.log(input);
+		//MUTATION FUNCTION
+		getQuestions(
+			{
+				amount: input.amount,
+				topic: input.topic,
+				type: input.type,
+			},
+			{
+				//FUNCTION THATS CALLED AFTER THE MUTATION IS SUCCESSFUL
+				onSuccess: ({ gameId }) => {
+					if (form.getValues("type") == "open_ended") {
+						router.push(`/play/open-ended/${gameId}`);
+					} else {
+						router.push(`/play/mcq/${gameId}`);
+					}
+				},
+			}
+		);
 	};
 
 	//WATCHING THE FORM FOR CHANGES TO RERENDER
@@ -124,7 +158,9 @@ const QuizCreation = (props: Props) => {
 									<BookOpen className='w-4 h-4 mr-2' /> Open Ended
 								</Button>
 							</div>
-							<Button type='submit'>Submit</Button>
+							<Button type='submit' disabled={isLoading}>
+								Submit
+							</Button>
 						</form>
 					</Form>
 				</CardContent>

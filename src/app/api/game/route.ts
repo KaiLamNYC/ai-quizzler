@@ -65,7 +65,7 @@ export async function POST(req: Request, res: Response) {
 					questionType: "mcq",
 				};
 			});
-			//CREATING GAMES WITH OPTIONS ABOVE
+			//CREATING QUESTIONS WITH OPTIONS ABOVE
 			await prisma.question.createMany({
 				data: gptQuestions,
 			});
@@ -77,13 +77,13 @@ export async function POST(req: Request, res: Response) {
 
 			let gptQuestions = data.questions.map((question: openQuestion) => {
 				return {
-					quesion: question.question,
+					question: question.question,
 					answer: question.answer,
 					gameId: game.id,
-					gameType: "open_ended",
+					questionType: "open_ended",
 				};
 			});
-			await prisma.game.createMany({
+			await prisma.question.createMany({
 				data: gptQuestions,
 			});
 		}
@@ -100,6 +100,7 @@ export async function POST(req: Request, res: Response) {
 		return NextResponse.json(
 			{
 				error: "Something went wrong",
+				payload: error,
 			},
 			{
 				status: 500,
