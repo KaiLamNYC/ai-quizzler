@@ -178,7 +178,7 @@ const QuizCreation = ({ topicParam }: Props) => {
 								</Button>
 							</div>
 							<Button type='submit' disabled={isLoading}>
-								Submit
+								Generate Quiz
 							</Button>
 						</form>
 					</Form>
