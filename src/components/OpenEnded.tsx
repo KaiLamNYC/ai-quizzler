@@ -72,7 +72,7 @@ const OpenEnded = ({ game }: Props) => {
 			onSuccess: ({ percentageSimilar }) => {
 				toast({
 					title: `Your answer is ${percentageSimilar}% similar to the correct answer`,
-					description: "Answers are matched based on string comparison",
+					description: "Similarity is calculated based on string comparison",
 				});
 				//CHECKING IS THERE ARE ANY QUESTIONS LEFT
 				if (questionIndex === game.questions.length - 1) {
