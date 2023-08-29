@@ -10,24 +10,20 @@ import { BarChart, ChevronRight, Loader2, Timer } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { z } from "zod";
-import MCQCounter from "./MCQCounter";
+import BlankAnswerInput from "./BlankAnswerInput";
 import { Button, buttonVariants } from "./ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "./ui/use-toast";
 
 type Props = {
-	game: Game & { questions: Pick<Question, "id" | "options" | "question">[] };
+	game: Game & { questions: Pick<Question, "id" | "question" | "answer">[] };
 };
 
-const MCQ = ({ game }: Props) => {
+const OpenEnded = ({ game }: Props) => {
 	//KEEPING TRACK OF WHAT QUESTION THE USER IS CURRENTLY ON
 	const [questionIndex, setQuestionIndex] = React.useState(0);
 
-	const [selectedChoice, setSelectedChoice] = React.useState<number>(0);
-
-	//FOR MCQ COUNTER
-	const [correctAnswers, setCorrectAnswers] = React.useState<number>(0);
-	const [wrongAnswers, setWrongAnswers] = React.useState<number>(0);
+	const [blankAnswer, setBlankAnswer] = React.useState<string>("");
 
 	//KEEPING TRACK OF WHEN THE GAME IS OVER
 	const [hasEnded, setHasEnded] = React.useState<boolean>(false);
@@ -36,7 +32,10 @@ const MCQ = ({ game }: Props) => {
 
 	const { toast } = useToast();
 
-	//WILL RUN EVERY SECOND TO UPDATE THE NOW TIME IN ORDER TO COMPARE TO GAME TIME STARTED
+	const currentQuestion = React.useMemo(() => {
+		return game.questions[questionIndex];
+	}, [questionIndex, game.questions]);
+
 	React.useEffect(() => {
 		const interval = setInterval(() => {
 			if (!hasEnded) {
@@ -49,45 +48,32 @@ const MCQ = ({ game }: Props) => {
 		};
 	}, [hasEnded]);
 
-	// https://react.dev/reference/react/useMemo
-	//WHEN INDEX CHANGES THIS RUNS TO GET CURRENT QUESTION
-	const currentQuestion = React.useMemo(() => {
-		return game.questions[questionIndex];
-	}, [questionIndex, game.questions]);
-
-	//FUNCTION TO COMPARE THE USERS INPUT AND THE CORRECT ANSWER
 	const { mutate: checkAnswer, isLoading: isChecking } = useMutation({
 		mutationFn: async () => {
+			let filledAnswer = blankAnswer;
+			//GRABBING THE INPUTS BY ID AND MAPPING OVER AND REPLACING THE BLANK INPUTS WITH USER INPUT
+			document.querySelectorAll("#user-blank-input").forEach((input) => {
+				filledAnswer = filledAnswer.replace("_____", input.value);
+				input.value = "";
+			});
 			const payload: z.infer<typeof checkAnswerSchema> = {
 				questionId: currentQuestion.id,
-				userInput: options[selectedChoice],
+				userInput: filledAnswer,
 			};
 			const response = await axios.post(`/api/checkAnswer`, payload);
 			return response.data;
 		},
 	});
 
-	//https://react.dev/reference/react/useCallback
-
 	const handleNext = React.useCallback(() => {
 		if (isChecking) return;
+
 		checkAnswer(undefined, {
-			onSuccess: ({ isCorrect }) => {
-				if (isCorrect) {
-					toast({
-						title: "Correct!",
-						description: "Correct answer",
-						variant: "success",
-					});
-					setCorrectAnswers((prev) => prev + 1);
-				} else {
-					toast({
-						title: "Incorrect!",
-						description: "Incorrect answer",
-						variant: "destructive",
-					});
-					setWrongAnswers((prev) => prev + 1);
-				}
+			onSuccess: ({ percentageSimilar }) => {
+				toast({
+					title: `Your answer is ${percentageSimilar}% similar to the correct answer`,
+					description: "Answers are matched based on string comparison",
+				});
 				//CHECKING IS THERE ARE ANY QUESTIONS LEFT
 				if (questionIndex === game.questions.length - 1) {
 					setHasEnded(true);
@@ -99,18 +85,9 @@ const MCQ = ({ game }: Props) => {
 		});
 	}, [checkAnswer, toast, isChecking, questionIndex, game.questions.length]);
 
-	//FOR KEYBOARD ACCESSABILITY
 	React.useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key == "1") {
-				setSelectedChoice(0);
-			} else if (event.key == "2") {
-				setSelectedChoice(1);
-			} else if (event.key == "3") {
-				setSelectedChoice(2);
-			} else if (event.key == "4") {
-				setSelectedChoice(3);
-			} else if (event.key === "Enter") {
+			if (event.key === "Enter") {
 				handleNext();
 			}
 		};
@@ -121,14 +98,6 @@ const MCQ = ({ game }: Props) => {
 			document.removeEventListener("keydown", handleKeyDown);
 		};
 	}, [handleNext]);
-
-	//GRABBING THE OPTIONS WHEN THE CURRENTQUESTION CHANGES
-	const options = React.useMemo(() => {
-		if (!currentQuestion) return [];
-		if (!currentQuestion.options) return [];
-
-		return JSON.parse(currentQuestion.options as string) as string[];
-	}, [currentQuestion]);
 
 	if (hasEnded) {
 		return (
@@ -165,10 +134,10 @@ const MCQ = ({ game }: Props) => {
 						{formatTimeDelta(differenceInSeconds(now, game.timeStarted))}
 					</div>
 				</div>
-				<MCQCounter
+				{/* <MCQCounter
 					correctAnswers={correctAnswers}
 					wrongAnswers={wrongAnswers}
-				/>
+				/> */}
 			</div>
 			<Card className='w-full mt-4'>
 				<CardHeader className='flex flex-row items-center'>
@@ -185,26 +154,10 @@ const MCQ = ({ game }: Props) => {
 			</Card>
 
 			<div className='flex flex-col items-center justify-enter w-full mt-4'>
-				{options.map((option, index) => {
-					return (
-						<Button
-							key={index}
-							className='justify-start w-full py-8 mb-4'
-							//CHANGING COLOR DEPENDING ON WHICH BUTTON IS SELECTED
-							variant={selectedChoice === index ? "default" : "secondary"}
-							onClick={() => {
-								setSelectedChoice(index);
-							}}
-						>
-							<div className='flex items-center justify-start'>
-								<div className='p-2 px-3 mr-5 border rounded-md'>
-									{index + 1}
-								</div>
-								<div className='text-start'>{option}</div>
-							</div>
-						</Button>
-					);
-				})}
+				<BlankAnswerInput
+					answer={currentQuestion.answer}
+					setBlankAnswer={setBlankAnswer}
+				/>
 				<Button
 					disabled={isChecking}
 					onClick={() => {
@@ -219,4 +172,4 @@ const MCQ = ({ game }: Props) => {
 	);
 };
 
-export default MCQ;
+export default OpenEnded;
