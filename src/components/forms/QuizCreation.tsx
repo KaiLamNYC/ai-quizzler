@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import LoadingQuestions from "../LoadingQuestions";
 import { Button } from "../ui/button";
 import {
 	Card,
@@ -35,6 +36,8 @@ type Input = z.infer<typeof quizCreationSchema>;
 
 const QuizCreation = (props: Props) => {
 	const router = useRouter();
+	const [showLoader, setShowLoader] = React.useState(false);
+	const [finished, setFinished] = React.useState(false);
 
 	// https://tanstack.com/query/v4/docs/react/reference/useMutation
 	const { mutate: getQuestions, isLoading } = useMutation({
@@ -57,6 +60,8 @@ const QuizCreation = (props: Props) => {
 	});
 
 	const onSubmit = (input: Input) => {
+		setShowLoader(true);
+
 		//MUTATION FUNCTION
 		getQuestions(
 			{
@@ -67,11 +72,19 @@ const QuizCreation = (props: Props) => {
 			{
 				//FUNCTION THATS CALLED AFTER THE MUTATION IS SUCCESSFUL
 				onSuccess: ({ gameId }) => {
-					if (form.getValues("type") == "open_ended") {
-						router.push(`/play/open-ended/${gameId}`);
-					} else {
-						router.push(`/play/mcq/${gameId}`);
-					}
+					//LOADER STUFF
+					setFinished(true);
+					//ARTIFICUAL BUFFER
+					setTimeout(() => {
+						if (form.getValues("type") == "open_ended") {
+							router.push(`/play/open-ended/${gameId}`);
+						} else {
+							router.push(`/play/mcq/${gameId}`);
+						}
+					}, 1000);
+				},
+				onError: () => {
+					setShowLoader(false);
 				},
 			}
 		);
@@ -79,6 +92,10 @@ const QuizCreation = (props: Props) => {
 
 	//WATCHING THE FORM FOR CHANGES TO RERENDER
 	form.watch();
+
+	if (showLoader) {
+		return <LoadingQuestions finished={finished} />;
+	}
 	return (
 		<div className='absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2'>
 			<Card>
