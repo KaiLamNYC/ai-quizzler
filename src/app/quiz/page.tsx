@@ -18,6 +18,7 @@ const QuizPage = async ({ searchParams }: Props) => {
 	if (!session?.user) {
 		return redirect("/");
 	}
+
 	return <QuizCreation topicParam={searchParams.topic ?? ""} />;
 };
 
