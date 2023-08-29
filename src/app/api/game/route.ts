@@ -30,7 +30,24 @@ export async function POST(req: Request, res: Response) {
 				topic,
 			},
 		});
-		//GRABBING QUESTIONS FROM GPT
+
+		//INCREMENTING TOPIC COUNT UPON GAME CREATION
+		await prisma.topic_count.upsert({
+			where: {
+				topic,
+			},
+			create: {
+				topic,
+				count: 1,
+			},
+			update: {
+				count: {
+					increment: 1,
+				},
+			},
+		});
+
+		//MAKING CALL TO OUR ENDPOINT TO GEN QUESTIONS FROM GPT
 		const { data } = await axios.post(`${process.env.API_URL}/api/questions`, {
 			amount,
 			topic,

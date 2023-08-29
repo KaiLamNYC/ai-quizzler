@@ -30,11 +30,13 @@ import {
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 
-type Props = {};
+type Props = {
+	topicParam: string;
+};
 
 type Input = z.infer<typeof quizCreationSchema>;
 
-const QuizCreation = (props: Props) => {
+const QuizCreation = ({ topicParam }: Props) => {
 	const router = useRouter();
 	const [showLoader, setShowLoader] = React.useState(false);
 	const [finished, setFinished] = React.useState(false);
@@ -54,7 +56,7 @@ const QuizCreation = (props: Props) => {
 		resolver: zodResolver(quizCreationSchema),
 		defaultValues: {
 			amount: 3,
-			topic: "",
+			topic: topicParam,
 			type: "open_ended",
 		},
 	});
