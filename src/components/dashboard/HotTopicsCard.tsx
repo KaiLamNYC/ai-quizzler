@@ -23,7 +23,7 @@ const HotTopicsCard = async (props: Props) => {
 	return (
 		<Card className='col-span-4'>
 			<CardHeader>
-				<CardTitle className='text-2xl font-bold'>Hot Topics</CardTitle>
+				<CardTitle className='text-2xl font-bold'>Trending Topics</CardTitle>
 				<CardDescription>Click on a topic to start a quiz!</CardDescription>
 			</CardHeader>
 			<CardContent className='pl-2'>

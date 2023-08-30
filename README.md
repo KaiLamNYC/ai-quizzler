@@ -6,6 +6,7 @@ Welcome to the AI Quiz Generator, a fun and interactive platform where you can c
 
 - [Getting Started](#getting-started)
 - [Demo](#demo)
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Usage](#usage)
 - [User Statistics](#user-statistics)
@@ -51,6 +52,30 @@ To get started with the AI Quiz Generator, follow these simple steps:
 ## Demo
 
 You can check out a live demo of the application [here](https://ai-quizzler.vercel.app/).
+
+## Screenshots
+
+Here are some screenshots showcasing different aspects of the AI Quiz project:
+
+- **Dashboard**
+  ![Dashboard](https://i.imgur.com/0KDUBHd.png)
+
+- **Quiz Creation**
+  ![Quiz Creation](https://i.imgur.com/z2NLoAV.png)
+
+- **Loading**
+  ![Loading](https://i.imgur.com/vBIfjDw.png)
+
+- **Quiz**
+  ![Quiz](https://i.imgur.com/MlOQBYd.png)
+
+- **Quiz Statistics**
+  ![Quiz Statistics](https://i.imgur.com/l9pZfrh.png)
+
+- **Quiz History**
+  ![Quiz History](https://i.imgur.com/Aam2baq.png)
+
+Feel free to add more screenshots or customize this section to best represent your project visually.
 
 ## Features
 
