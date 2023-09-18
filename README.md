@@ -1,7 +1,5 @@
 # AI Quiz Generator
 
-CURRENTLY NOT WORKING ON DEPLOYED VERSION, HAVE TO CLONE AND RUN ON LOCAL
-
 Welcome to the AI Quiz Generator, a fun and interactive platform where you can create quizzes on any topic of your choice using the power of AI. Whether you're a student looking for study materials or just want to challenge your friends, this platform has got you covered.
 
 ## Table of Contents
