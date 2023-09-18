@@ -11,7 +11,7 @@ export async function POST(req: Request, res: Response) {
 		if (!session?.user) {
 			return NextResponse.json(
 				{
-					error: "you muse be logged in",
+					error: "you must be logged in",
 				},
 				{ status: 401 }
 			);
